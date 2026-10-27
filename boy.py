@@ -1,6 +1,6 @@
 from math import pi
 from pico2d import (
-    SDL_KEYDOWN, SDL_KEYUP, SDLK_LEFT, SDLK_RIGHT, SDLK_SPACE,
+    SDL_KEYDOWN, SDL_KEYUP, SDLK_a, SDLK_LEFT, SDLK_RIGHT, SDLK_SPACE,
     get_time, load_image,
 )
 from transitions import Machine
@@ -31,6 +31,7 @@ class Boy:
                 ['stop_running', 'RUN', 'IDLE'],
                 ['go_sleep', 'IDLE', 'SLEEP'],
                 ['wake_up', 'SLEEP', 'IDLE'],
+                ['start_auto_run', 'IDLE', 'AUTO_RUN'],
             ],
             initial='IDLE',
         )
@@ -51,7 +52,7 @@ class Boy:
                     self.x + self.face_dir * self.move_speed * elapsed),
             )
 
-        if self.state in ('IDLE', 'RUN'):
+        if self.state in ('IDLE', 'RUN', 'AUTO_RUN'):
             self.frame_timer += elapsed
             while self.frame_timer >= self.frame_duration:
                 self.frame_timer -= self.frame_duration
@@ -60,7 +61,11 @@ class Boy:
                     self.repeat_idle()
 
     def handle_event(self, event):
-        if event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+        if event.type == SDL_KEYDOWN and event.key == SDLK_a:
+            if self.state == 'IDLE':
+                self.start_auto_run()
+                self.frame_timer = 0
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             if self.state == 'SLEEP':
                 self.wake_up()
                 self.idle_timer = 0
