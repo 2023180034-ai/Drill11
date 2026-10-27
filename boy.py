@@ -7,6 +7,7 @@ from transitions import Machine
 
 class Boy:
     idle_timeout = 5.0
+    auto_run_duration = 5.0
     move_speed = 200
     screen_width = 800
     half_width = 50
@@ -20,6 +21,7 @@ class Boy:
         self.frame_duration = 0.1
         self.frame_timer = 0
         self.idle_timer = 0
+        self.auto_run_timer = 0
         self.last_update_time = get_time()
 
         self.state_machine = Machine(
@@ -32,6 +34,8 @@ class Boy:
                 ['go_sleep', 'IDLE', 'SLEEP'],
                 ['wake_up', 'SLEEP', 'IDLE'],
                 ['start_auto_run', 'IDLE', 'AUTO_RUN'],
+                ['finish_auto_run', 'AUTO_RUN', 'IDLE'],
+                ['stop_auto_run_for_manual', 'AUTO_RUN', 'RUN'],
             ],
             initial='IDLE',
         )
@@ -46,13 +50,19 @@ class Boy:
             if self.idle_timer >= self.idle_timeout:
                 self.go_sleep()
         elif self.state == 'AUTO_RUN':
-            self.x = max(
-                self.half_width,
-                min(self.screen_width - self.half_width,
-                    self.x + self.face_dir * self.move_speed * elapsed),
-            )
-            if self.x in (self.half_width, self.screen_width - self.half_width):
-                self.face_dir *= -1
+            self.auto_run_timer += elapsed
+            if self.auto_run_timer >= self.auto_run_duration:
+                self.finish_auto_run()
+                self.idle_timer = 0
+                self.frame_timer = 0
+            else:
+                self.x = max(
+                    self.half_width,
+                    min(self.screen_width - self.half_width,
+                        self.x + self.face_dir * self.move_speed * elapsed),
+                )
+                if self.x in (self.half_width, self.screen_width - self.half_width):
+                    self.face_dir *= -1
         elif self.state == 'RUN':
             self.x = max(
                 self.half_width,
@@ -72,6 +82,7 @@ class Boy:
         if event.type == SDL_KEYDOWN and event.key == SDLK_a:
             if self.state == 'IDLE':
                 self.start_auto_run()
+                self.auto_run_timer = 0
                 self.frame_timer = 0
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             if self.state == 'SLEEP':
@@ -89,6 +100,9 @@ class Boy:
                 self.frame_timer = 0
             elif self.state == 'IDLE':
                 self.start_running()
+                self.frame_timer = 0
+            elif self.state == 'AUTO_RUN':
+                self.stop_auto_run_for_manual()
                 self.frame_timer = 0
             if self.state == 'RUN':
                 self.idle_timer = 0
