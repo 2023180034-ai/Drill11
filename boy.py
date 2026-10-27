@@ -9,6 +9,9 @@ class Boy:
     idle_timeout = 5.0
     auto_run_duration = 5.0
     move_speed = 200
+    auto_run_speed = 240
+    auto_run_size = 120
+    auto_run_half_width = auto_run_size // 2
     screen_width = 800
     half_width = 50
 
@@ -57,11 +60,14 @@ class Boy:
                 self.frame_timer = 0
             else:
                 self.x = max(
-                    self.half_width,
-                    min(self.screen_width - self.half_width,
-                        self.x + self.face_dir * self.move_speed * elapsed),
+                    self.auto_run_half_width,
+                    min(self.screen_width - self.auto_run_half_width,
+                        self.x + self.face_dir * self.auto_run_speed * elapsed),
                 )
-                if self.x in (self.half_width, self.screen_width - self.half_width):
+                if self.x in (
+                    self.auto_run_half_width,
+                    self.screen_width - self.auto_run_half_width,
+                ):
                     self.face_dir *= -1
         elif self.state == 'RUN':
             self.x = max(
@@ -129,7 +135,11 @@ class Boy:
 
         if self.state in ('RUN', 'AUTO_RUN'):
             row = 100 if self.face_dir == 1 else 0
-            self.image.clip_draw(self.frame * 100, row, 100, 100, self.x, self.y)
+            size = self.auto_run_size if self.state == 'AUTO_RUN' else 100
+            self.image.clip_draw(
+                self.frame * 100, row, 100, 100,
+                self.x, self.y, size, size,
+            )
             return
 
         if self.face_dir == 1:
