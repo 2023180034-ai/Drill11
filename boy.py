@@ -9,8 +9,8 @@ class Boy:
     idle_timeout = 5.0
     auto_run_duration = 5.0
     move_speed = 200
-    auto_run_speed = 240
-    auto_run_size = 120
+    auto_run_speed = 260
+    auto_run_size = 130
     auto_run_half_width = auto_run_size // 2
     screen_width = 800
     half_width = 50
