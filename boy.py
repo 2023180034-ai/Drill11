@@ -45,7 +45,15 @@ class Boy:
             self.idle_timer += elapsed
             if self.idle_timer >= self.idle_timeout:
                 self.go_sleep()
-        elif self.state in ('RUN', 'AUTO_RUN'):
+        elif self.state == 'AUTO_RUN':
+            self.x = max(
+                self.half_width,
+                min(self.screen_width - self.half_width,
+                    self.x + self.face_dir * self.move_speed * elapsed),
+            )
+            if self.x in (self.half_width, self.screen_width - self.half_width):
+                self.face_dir *= -1
+        elif self.state == 'RUN':
             self.x = max(
                 self.half_width,
                 min(self.screen_width - self.half_width,
