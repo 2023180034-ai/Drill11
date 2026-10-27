@@ -24,7 +24,7 @@ class Boy:
 
         self.state_machine = Machine(
             model=self,
-            states=['IDLE', 'RUN', 'SLEEP'],
+            states=['IDLE', 'RUN', 'SLEEP', 'AUTO_RUN'],
             transitions=[
                 ['repeat_idle', 'IDLE', 'IDLE'],
                 ['start_running', 'IDLE', 'RUN'],
